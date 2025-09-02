@@ -1,0 +1,11 @@
+name: ScavengerHunt
+version: 1.0
+api-version: 1.21
+main: com.socialrevise.ScavengerHuntPlugin
+commands:
+  hunt:
+    description: Admin command
+    usage: /hunt help
+  permissions:
+    scavenger.admin:
+      default: op

@@ -1,0 +1,15 @@
+reward-command: "give %player% diamond 3"
+pool:
+  - oak_log
+  - cobblestone
+  - iron_ingot
+  - carrot
+  - string
+  - gunpowder
+  - sugar
+  - bone
+  - feather
+  - egg
+  - paper
+  - leather
+hopper: {}
