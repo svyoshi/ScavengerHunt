@@ -2,6 +2,8 @@ package com.socialrevise;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Hopper;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,8 +14,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -23,21 +23,35 @@ public class HuntManager {
     private final HologramManager holo;
 
     private final List<Material> todayTargets = new ArrayList<>(5);
+    private List<String> rewardPool;
     final Map<UUID, Set<Material>> progress = new HashMap<>();
     private org.bukkit.Location hopperLoc; // designated hopper
-    private String rewardCmd;              // console command executed on winner
     private UUID winnerOfToday;
+    private long nextResetEpochMs;
 
     public HuntManager(ScavengerHuntPlugin plugin, HologramManager holo) {
         this.plugin = plugin; this.holo = holo;
         loadConfig();
     }
 
+    public long getMillisUntilReset() {
+        return Math.max(0, nextResetEpochMs - System.currentTimeMillis());
+    }
+
+    public boolean hasWinner() { return winnerOfToday != null; }
+
+    public String getWinnerName() {
+        return (winnerOfToday == null) ? null
+                : plugin.getServer().getOfflinePlayer(winnerOfToday).getName();
+    }
+
     public void loadConfig() {
         FileConfiguration c = plugin.cfg();
-        this.rewardCmd = c.getString("reward-command", "give %player% diamond 3");
         this.hopperLoc = Util.readLocation(c, "hopper");
-        if (hopperLoc != null) holo.spawnAt(hopperLoc.clone().add(0.5, 1.8, 0.5));
+        this.rewardPool = c.getStringList("rewards");
+        if (rewardPool == null || rewardPool.isEmpty()) {
+            rewardPool = Collections.singletonList("give %player% diamond 3");
+        }
         if (todayTargets.isEmpty()) newDay();
     }
 
@@ -83,16 +97,34 @@ public class HuntManager {
 
     private void declareWinner(Player p) {
         winnerOfToday = p.getUniqueId();
-        String cmd = rewardCmd.replace("%player%", p.getName());
+        String cmd = rewardPool.get(ThreadLocalRandom.current().nextInt(rewardPool.size()))
+                .replace("%player%", p.getName());
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
         Bukkit.broadcast(Component.text("Scavenger Hunt winner: " + p.getName() + "!", NamedTextColor.GOLD));
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1f);
+            player.sendTitle("§a" + p.getName(), "§7completed the Scavenger Hunt!", 10, 40, 20);
+        }
     }
 
-    public void initDailyRotation() {
-        long ticksUntilMidnight = Util.ticksUntil(LocalTime.MIDNIGHT, ZoneId.systemDefault());
-        new org.bukkit.scheduler.BukkitRunnable(){
-            @Override public void run(){ newDay(); }
-        }.runTaskTimer(plugin, ticksUntilMidnight, 24L*60L*60L*20L);
+    public void initHourlyRotationStartNow() {
+        long periodTicks = 60L * 60L * 20L;
+
+        // fire immediately
+        newDay();
+        nextResetEpochMs = System.currentTimeMillis() + 3_600_000L;
+
+        // then repeat every hour
+        new org.bukkit.scheduler.BukkitRunnable() {
+            @Override public void run() {
+                newDay();
+                nextResetEpochMs = System.currentTimeMillis() + 3_600_000L;
+            }
+        }.runTaskTimer(plugin, periodTicks, periodTicks);
+    }
+
+    public org.bukkit.Location getHopperLocation() {
+        return hopperLoc;
     }
 
     public void newDay() {

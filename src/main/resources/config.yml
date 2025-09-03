@@ -1,4 +1,6 @@
-reward-command: "give %player% diamond 3"
+rewards:
+  - "give %player% diamond 3"
+  - "give %player% emerald 5"
 pool:
   - oak_log
   - cobblestone
