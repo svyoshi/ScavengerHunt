@@ -10,7 +10,8 @@ the scavenger hunt is a competition/race style hunt, only 1 player can win per r
 players will see their individual completion progress on the holograms.
 
 to set up:
->place hopper
->/hunt sethopper
->???
->profit
+- place hopper
+- stare at hopper
+- /hunt sethopper
+- ???
+- profit
