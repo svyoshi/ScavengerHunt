@@ -85,6 +85,7 @@ public class HuntManager {
         if (!set.add(mat)) return;                  // already submitted by this player
 
         player.sendMessage(Component.text("Submitted: " + mat, NamedTextColor.GREEN));
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, SoundCategory.MASTER, 1f, 1f);
 
         // per-player checkmarks update
         holo.refreshMarksFor(player, todayTargets, set);
@@ -146,7 +147,11 @@ public class HuntManager {
         updateHopperDisplay();         // keep hopper display filled
         holo.resetMarksForAll();       // hide all per-player checks
         hologramUpdate();
-        Bukkit.broadcast(Component.text("Scavenger Hunt reset! Check the hologram.", NamedTextColor.AQUA));
+        Bukkit.broadcast(Component.text("Scavenger Hunt reset!\nCheck the hologram", NamedTextColor.AQUA));
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.playSound(player.getLocation(), Sound.ITEM_GOAT_HORN_SOUND_1, SoundCategory.MASTER, 1f, 1f);
+            player.sendActionBar(Component.text("A new Scavenger Hunt has started!", NamedTextColor.GREEN));
+        }
     }
 
     private List<Material> defaultPool() {

@@ -1,10 +1,8 @@
 package com.socialrevise;
 
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 
 import java.util.Locale;
