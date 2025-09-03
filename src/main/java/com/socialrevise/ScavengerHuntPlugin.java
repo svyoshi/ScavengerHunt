@@ -21,6 +21,7 @@ public class ScavengerHuntPlugin extends JavaPlugin {
         this.huntManager = new HuntManager(this, hologramManager);
         getCommand("hunt").setExecutor(new Commands(huntManager, hologramManager));
         Bukkit.getPluginManager().registerEvents(new HopperListener(huntManager), this);
+        Bukkit.getPluginManager().registerEvents(new ProgressListener(huntManager, hologramManager), this);
         huntManager.initDailyRotation();
         getLogger().info("ScavengerHunt enabled");
     }
