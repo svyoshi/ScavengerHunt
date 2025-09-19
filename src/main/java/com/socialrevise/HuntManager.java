@@ -28,6 +28,7 @@ public class HuntManager {
     private org.bukkit.Location hopperLoc; // designated hopper
     private UUID winnerOfToday;
     private long nextResetEpochMs;
+    private List<List<String>> rewardPools;
 
     public HuntManager(ScavengerHuntPlugin plugin, HologramManager holo) {
         this.plugin = plugin; this.holo = holo;
@@ -48,9 +49,34 @@ public class HuntManager {
     public void loadConfig() {
         FileConfiguration c = plugin.cfg();
         this.hopperLoc = Util.readLocation(c, "hopper");
-        this.rewardPool = c.getStringList("rewards");
-        if (rewardPool == null || rewardPool.isEmpty()) {
-            rewardPool = Collections.singletonList("give %player% diamond 3");
+        List<?> raw = c.getList("rewards");
+        rewardPools = new ArrayList<>();
+        if (raw != null && !raw.isEmpty()) {
+            for (Object o : raw) {
+                if (o instanceof String s) {
+                    rewardPools.add(java.util.List.of(s));
+                } else if (o instanceof List<?> list) {
+                    List<String> cmds = list.stream()
+                            .filter(String.class::isInstance)
+                            .map(String.class::cast)
+                            .toList();
+                    if (!cmds.isEmpty()) rewardPools.add(cmds);
+                } else if (o instanceof Map<?,?> map) {
+                    Object cmdsObj = map.get("commands");
+                    if (cmdsObj instanceof List<?> list) {
+                        List<String> cmds = list.stream()
+                                .filter(String.class::isInstance)
+                                .map(String.class::cast)
+                                .toList();
+                        if (!cmds.isEmpty()) rewardPools.add(cmds);
+                    }
+                }
+            }
+        }
+        if (rewardPools.isEmpty()) {
+            // fallback: legacy key or sane default
+            String legacy = c.getString("reward-command", "give %player% diamond 3");
+            rewardPools.add(java.util.List.of(legacy));
         }
         if (todayTargets.isEmpty()) newDay();
     }
@@ -98,9 +124,14 @@ public class HuntManager {
 
     private void declareWinner(Player p) {
         winnerOfToday = p.getUniqueId();
-        String cmd = rewardPool.get(ThreadLocalRandom.current().nextInt(rewardPool.size()))
-                .replace("%player%", p.getName());
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+
+        List<String> cmds = rewardPools.get(ThreadLocalRandom.current().nextInt(rewardPools.size()));
+        for (String raw : cmds) {
+            String cmd = raw
+                    .replace("%player%", p.getName())
+                    .replace("%uuid%", p.getUniqueId().toString());
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        }
         Bukkit.broadcast(Component.text("Scavenger Hunt winner: " + p.getName() + "!", NamedTextColor.GOLD));
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1f, 1f);

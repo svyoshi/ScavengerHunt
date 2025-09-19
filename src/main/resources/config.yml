@@ -1,7 +1,8 @@
 #execute commands, chosen randomly, unweighted sorry
 rewards:
-  - "give %player% diamond 3"
-  - "give %player% emerald 5"
+  - ["give %player% diamond 3", "xp add %player% 5 levels"]
+  - ["eco give %player% 250", "say Congrats %player%!"]
+  - ["give %player% golden_apple 2"]
 # possible scavenger hunt items (omit minecraft:) chosen randomly, unweighted sorry
 pool:
   - oak_log
@@ -16,5 +17,48 @@ pool:
   - egg
   - paper
   - leather
+  - light_blue_dye
+  - stone
+  - nether_wart
+  - blaze_rod
+  - gold_ingot
+  - diamond
+  - melon_slice
+  - amethyst_shard
+  - pufferfish
+  - ink_sac
+  - glass_pane
+  - light_gray_dye
+  - lantern
+  - cocoa_beans
+  - tripwire_hook
+  - quartz
+  - brick
+  - clay
+  - slime_ball
+  - bamboo
+  - honeycomb
+  - kelp
+  - magma_cream
+  - phantom_membrane
+  - turtle_scute
+  - prismarine_shard
+  - prismarine_crystals
+  - glowstone_dust
+  - copper_ingot
+  - honey_bottle
+  - raw_salmon
+  - cod
+  - tropical_fish
+  - rabbit_hide
+  - rabbit_foot
+  - ghast_tear
+  - ender_pearl
+  - nautilus_shell
+  - heart_of_the_sea
+  - candle
+  - raw_gold
+  - raw_copper
+  - raw_iron
 # do not touch or i'll fucking kill you
 hopper: {}
