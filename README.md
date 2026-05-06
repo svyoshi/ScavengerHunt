@@ -1,9 +1,5 @@
 this is an AI-slop plugin. you probably shouldnt use it. it definitely has memory leak issues. and its also outdated.
 
-that being said it probably has inefficiencies or redundancies, i am not a well-versed programmer.
-
-i'm pretty sure if you do /reload it will cause memory leaks.. so.. don't do that.
-
 ---------------------------------------
 
 starts a scavenger hunt every hour on server start-up (or if you use /hunt force, doesn't reset timer)
