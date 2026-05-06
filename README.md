@@ -1,4 +1,4 @@
-this is an AI-slop plugin but it actually works pretty damn well.
+this is an AI-slop plugin. you probably shouldnt use it. it definitely has memory leak issues. and its also outdated.
 
 that being said it probably has inefficiencies or redundancies, i am not a well-versed programmer.
 
